@@ -22,7 +22,6 @@ import { DialogAddUserComponent } from '../dialog-add-user/dialog-add-user.compo
   styleUrl: './user.component.scss',
 })
 export class UserComponent {
-
   constructor(public dialog: MatDialog) {}
 
   openDialog(): void {
