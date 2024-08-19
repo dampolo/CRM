@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "dp-crm-25fdd": {
+      "hosting": {
+        "crm": [
+          "dp-crm-25fdd"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "dp-crm-25fdd"
+  }
+}
