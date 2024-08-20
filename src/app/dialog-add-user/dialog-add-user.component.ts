@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { FormsModule, NgModel } from '@angular/forms';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIcon } from '@angular/material/icon';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerActions, MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
   DateAdapter,
   MAT_DATE_FORMATS,
@@ -14,23 +13,23 @@ import {
   NativeDateAdapter,
 } from '@angular/material/core';
 import { User } from '../../models/user.class';
+import { collection, Firestore } from '@angular/fire/firestore';
+import { doc, setDoc } from 'firebase/firestore';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 
 @Component({
   selector: 'app-dialog-add-user',
   standalone: true,
   imports: [
-    MatButtonModule,
-    MatDialogContent,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
     MatDialogModule,
-    MatIcon,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    FormsModule,
     MatDatepickerModule,
-    MatDatepickerActions,
     MatNativeDateModule,
-    FormsModule
+    MatProgressBarModule,
   ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
@@ -40,12 +39,28 @@ import { User } from '../../models/user.class';
   styleUrl: './dialog-add-user.component.scss',
 })
 export class DialogAddUserComponent {
+  firestore: Firestore = inject(Firestore);
+  dialogRef: MatDialogRef<DialogAddUserComponent> = inject(MatDialogRef);
   user = new User();
-  birthDay!: Date; 
+  birthDay!: Date;
+  loading = false;
 
-  saveUser() {
-    this.user.birthDay = this.birthDay.getTime()
-    console.log("current user: ", this.user);
-    
+  async saveUser() {
+    this.user.birthDay = this.birthDay.getTime();
+    console.log('Current user is', this.user);
+    this.loading = true;
+    const newUserRef = doc(collection(this.firestore, 'users'));
+    try {
+      await setDoc(newUserRef, this.user.toJSON());
+      this.loading = false;
+      this.dialogRef.close();
+    } catch (error) {
+      console.error('Error adding user: ', error);
+      this.loading = false;
+    }
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }
